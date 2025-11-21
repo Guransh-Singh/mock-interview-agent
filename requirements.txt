@@ -17,3 +17,4 @@ gTTS
 soundfile
 numpy
 starlette
+sentence-transformers
