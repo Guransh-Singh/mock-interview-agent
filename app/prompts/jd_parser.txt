@@ -1,0 +1,14 @@
+Extract structured information from this job description.
+Return **ONLY valid JSON** using this schema:
+
+{
+  "role": "",
+  "required_skills": [],
+  "preferred_skills": [],
+  "responsibilities": [],
+  "experience_level": "",
+  "tech_stack": []
+}
+
+Job description:
+{{JD_TEXT}}

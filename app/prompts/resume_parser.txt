@@ -1,0 +1,24 @@
+Extract structured information from the following resume
+and return **ONLY valid JSON** using this schema:
+
+{
+  "name": "",
+  "email": "",
+  "phone": "",
+  "summary": "",
+  "skills": [],
+  "experience": [
+    {
+      "title": "",
+      "company": "",
+      "start_date": "",
+      "end_date": "",
+      "bullets": []
+    }
+  ],
+  "projects": [],
+  "education": []
+}
+
+Resume text:
+{{RESUME_TEXT}}

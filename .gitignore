@@ -1,0 +1,111 @@
+# =========================
+#  Python / FastAPI Project
+# =========================
+
+# Virtual environment
+venv/
+ENV/
+env/
+.virtualenv/
+.python-version
+
+# Bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build & distribution
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Logs
+*.log
+logs/
+*.out
+
+# =========================
+#  Environment / Secrets
+# =========================
+
+# Environment variables
+.env
+*.env
+.env.local
+.env.*.local
+
+# API keys accidentally stored
+config.json
+secrets.json
+
+# =========================
+#  Uploaded Files (User Data)
+# =========================
+
+# Resume/JD uploads or audio recordings
+uploads/
+*.pdf
+*.docx
+*.webm
+*.wav
+*.mp3
+
+# Temporary audio output
+tts_output.mp3
+*.tmp
+
+# =========================
+#  Whisper / Models
+# =========================
+
+# Whisper model downloads
+*.pt
+*.bin
+*.npz
+
+# =========================
+#  Node / Frontend
+# =========================
+
+# If you ever use npm/yarn
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build output (if using any frontend build tool)
+dist/
+build/
+.cache/
+
+# =========================
+#  OS / Editor Junk Files
+# =========================
+
+# macOS
+.DS_Store
+.AppleDouble
+.apdisk
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# =========================
+#  Misc
+# =========================
+
+# Backup files
+*~
+*.bak
+*.swp
+*.swo

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mock Interview – Interview Mode</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="bg">
+    <main class="center-card">
+        <section class="glass card-large">
+            <h2>Interview</h2>
+
+            <div class="question-area">
+                <div id="question-text" class="question">
+                    Press “Start Interview” to begin.
+                </div>
+
+                <audio id="tts-audio" controls style="display:none"></audio>
+            </div>
+
+            <div class="controls">
+                <button id="start-btn" class="btn">Start Interview</button>
+                <button id="play-btn" class="btn ghost" disabled>🔊 Play Again</button>
+                <button id="record-btn" class="btn" disabled>🎤 Record Answer</button>
+            </div>
+
+            <div id="transcript" class="transcript muted"></div>
+            <div id="eval" class="eval"></div>
+
+            <!-- Semantic Confidence Display -->
+            <div id="score" class="score" 
+                 style="margin-top:12px; font-weight:bold; font-size:1.1rem;">
+            </div>
+
+            <div class="btn-row" style="margin-top:20px;">
+                <a class="btn ghost" href="upload.html">Upload Again</a>
+                <a class="btn" href="improvement.html">Get Improvement Plan</a>
+            </div>
+        </section>
+
+        <footer class="muted">
+            Your voice is recorded locally. Nothing leaves your browser except the audio for the interview.
+        </footer>
+    </main>
+
+    <script>
+        let sessionId = localStorage.getItem("mi_session_id") || null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+
+        const startBtn = document.getElementById("start-btn");
+        const playBtn = document.getElementById("play-btn");
+        const recordBtn = document.getElementById("record-btn");
+        const questionText = document.getElementById("question-text");
+        const ttsAudio = document.getElementById("tts-audio");
+        const transcriptEl = document.getElementById("transcript");
+        const evalEl = document.getElementById("eval");
+        const scoreEl = document.getElementById("score");
+
+        async function fetchQuestion() {
+            if (!sessionId) {
+                alert("Missing session ID — upload resume & JD first.");
+                window.location.href = "upload.html";
+                return;
+            }
+
+            const form = new FormData();
+            form.append("session_id", sessionId);
+
+            const res = await fetch("/api/get-question", {
+                method: "POST",
+                body: form,
+            });
+
+            const data = await res.json();
+
+            if (data.type === "done") {
+                questionText.innerText = "Interview Completed!";
+                recordBtn.disabled = true;
+                playBtn.disabled = true;
+                return;
+            }
+
+            const q = data.question;
+            questionText.innerText = q.text || "Placeholder question";
+
+            // Play question TTS
+            if (q.audio_url) {
+                ttsAudio.src = q.audio_url;
+                ttsAudio.style.display = "block";
+                ttsAudio.play().catch(() => {});
+                playBtn.disabled = false;
+            }
+
+            recordBtn.disabled = false;
+            transcriptEl.innerText = "";
+            evalEl.innerText = "";
+            scoreEl.innerText = "";
+        }
+
+        // Start interview — generate questions
+        startBtn.addEventListener("click", async () => {
+            const form = new FormData();
+            form.append("session_id", sessionId);
+            form.append("question_count", 5);
+
+            await fetch("/api/start-interview", { method: "POST", body: form });
+
+            fetchQuestion();
+        });
+
+        playBtn.addEventListener("click", () => ttsAudio.play());
+
+        // Recording logic
+        recordBtn.addEventListener("click", async () => {
+            if (!mediaRecorder) {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+
+                mediaRecorder.onstop = async () => {
+                    const blob = new Blob(audioChunks, { type: "audio/webm" });
+                    const form = new FormData();
+                    form.append("session_id", sessionId);
+                    form.append("file", blob, "answer.webm");
+
+                    const res = await fetch("/api/submit-answer-audio", {
+                        method: "POST",
+                        body: form,
+                    });
+
+                    const data = await res.json();
+
+                    transcriptEl.innerText =
+                        "Transcript: " + (data.evaluation?.transcript || "No transcript");
+
+                    evalEl.innerText =
+                        data.evaluation?.concise_feedback ||
+                        "Evaluation unavailable.";
+
+                    // Show semantic similarity score
+                    if (data.evaluation?.semantic_similarity !== undefined) {
+                        const percent =
+                            Math.round(data.evaluation.semantic_similarity * 100);
+                        scoreEl.innerText = `Semantic Match Confidence: ${percent}%`;
+                    } else {
+                        scoreEl.innerText = "Confidence unavailable.";
+                    }
+
+                    fetchQuestion();
+                };
+
+                mediaRecorder.start();
+                recordBtn.innerText = "⏹ Stop Recording";
+            } else {
+                mediaRecorder.stop();
+                mediaRecorder = null;
+                recordBtn.innerText = "🎤 Record Answer";
+            }
+        });
+    </script>
+</body>
+</html>
