@@ -18,3 +18,5 @@ soundfile
 numpy
 starlette
 sentence-transformers
+bert-score
+python-docx
