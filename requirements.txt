@@ -20,3 +20,4 @@ starlette
 sentence-transformers
 bert-score
 python-docx
+imageio-ffmpeg

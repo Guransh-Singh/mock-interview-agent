@@ -1,10 +1,11 @@
 import whisper
 import tempfile
 import os
-import os
-# Add ffmpeg to PATH manually so Python can find it
-os.environ["PATH"] += os.pathsep + r"C:\ffmpeg\bin"
+from imageio_ffmpeg import get_ffmpeg_exe
 
+ffmpeg_path = get_ffmpeg_exe()
+ffmpeg_dir = os.path.dirname(ffmpeg_path)
+os.environ["PATH"] = ffmpeg_dir + os.pathsep + os.environ.get("PATH", "")
 # Load model ONCE (slow on first load, fast afterward)
 model = whisper.load_model("base")
 
